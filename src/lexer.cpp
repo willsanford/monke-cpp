@@ -11,6 +11,9 @@ bool is_letter(char c){
     return (('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || (c == '_'));
 }
 
+Lexer::Lexer(std::string input) : input(input), position(0), read_position(0), c('\0') {
+    read_char();
+}
 Token Lexer::next_token(){
     skip_whitespace();
 

@@ -16,9 +16,7 @@ bool is_letter(char c);
 
 class Lexer {
 public:
-    Lexer(std::string input) : input(input), position(0), read_position(0), c('\0') {
-        read_char();
-    }
+    Lexer(std::string input);
     Token next_token();
 
 private:
