@@ -62,7 +62,11 @@ void Lexer::read_char() {
 }
 
 char Lexer::peek_char(){
-    return read_position >= input.size() ? '\0' : input[read_position];
+    if (read_position < input.size()){
+        return input[read_position];
+    }else {
+        return '\0';
+    }
 }
 
 std::string Lexer::read_forward(bool (*pred)(char)) {

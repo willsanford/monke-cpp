@@ -3,7 +3,6 @@
 //
 #include "token.h"
 
-
 Token::Token() : ttype(token_t::ILLEGAL) , literal("\0"){};
 Token::Token(token_t t, std::string l) : ttype(t), literal(l) {};
 Token::Token(token_t t, char l) : ttype(t), literal(std::string(1, l)) {};
