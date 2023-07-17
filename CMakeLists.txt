@@ -3,6 +3,7 @@ project(monke_cpp)
 
 add_compile_options(-Wall -Wextra -pedantic)
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include_directories(src)
 add_library(monke_core STATIC src/token.h src/lexer.h src/lexer.cpp src/token.cpp src/ast.h src/ast.cpp src/parser.cpp src/parser.h)
 
