@@ -3,14 +3,9 @@
 //
 
 #include "ast.h"
+#include "token.h"
 
 std::string Node::token_literal() {
-    return "";
-}
-std::string Statement::token_literal() {
-    return "";
-}
-std::string Expression::token_literal() {
     return "";
 }
 
@@ -18,9 +13,11 @@ std::string LetStatement::token_literal() {
     return token.literal;
 }
 
-std::string Identifier::token_literal() {
-    return token.literal;
-}
+Identifier::Identifier(Token t, std::string n) : token(t) , value(n) {}
+
+Program::Program(){
+
+};
 
 std::string Program::token_literal() {
     if (!statements.empty()){

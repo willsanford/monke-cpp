@@ -17,8 +17,14 @@ public:
     Token peek_token;
 
     void next_token();
-    Program parse_program();
+    bool cur_token_is(token_t t);
+    bool peek_token_is(token_t t);
+    bool expect_peek(token_t t);
 
+    Statement parse_statement();
+    Statement parse_let_statement();
+
+    Program parse_program();
 };
 
 

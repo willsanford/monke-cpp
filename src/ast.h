@@ -17,24 +17,32 @@ public:
 
 class Statement : public Node {
 public:
-    std::string token_literal();
+    using Node::token_literal;
 };
 
-class Expression : Node {
+class NullStatement : public Statement {
 public:
-    std::string token_literal();
+    std::string token_literal(){ return "NULL"; }
 };
 
-class Identifier : Expression {
+class Expression : public Node {
 public:
+    using Node::token_literal;
+};
+
+class Identifier : public Expression {
+public:
+    using Expression::token_literal;
+
+    Identifier(Token t, std::string n);
+    Identifier(){}
     Token token; // Always token_t::IDENT
     std::string value;
-
-    std::string token_literal();
 };
 
-class LetStatement : Statement {
+class LetStatement : public Statement {
 public:
+    LetStatement();
     Token token;
     Identifier name;
     Expression value;
@@ -44,6 +52,7 @@ public:
 
 class Program {
 public:
+    Program();
     std::string token_literal();
     std::vector<Statement> statements;
 };
