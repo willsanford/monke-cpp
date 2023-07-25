@@ -9,7 +9,13 @@ std::string Node::token_literal() {
     return "";
 }
 
+LetStatement::LetStatement(){};
 std::string LetStatement::token_literal() {
+    return token.literal;
+}
+
+ReturnStatement::ReturnStatement(){};
+std::string ReturnStatement::token_literal(){
     return token.literal;
 }
 

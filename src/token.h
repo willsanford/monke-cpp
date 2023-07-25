@@ -45,6 +45,8 @@ enum token_t {
     RETURN,
 };
 
+std::string get_token_name(token_t t);
+
 class Token {
 public:
     token_t ttype;

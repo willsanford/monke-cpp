@@ -29,3 +29,89 @@ token_t Token::lookup_ident(std::string literal_) {
 bool Token::operator==(const Token& t){
     return (ttype == t.ttype) && (literal == t.literal);
 }
+
+std::string get_token_name(token_t t){
+  switch (t) {
+    case ILLEGAL:
+      return "illegal";
+      break;
+    case EOF_:
+      return "EOF";
+      break;
+    case IDENT:
+      return "IDENT";
+      break;
+    case INT:
+      return "INT";
+      break;
+    case EQ:
+      return "EQ";
+      break;
+    case NotEq:
+      return "NotEq";
+      break;
+    case PLUS:
+      return "PLUS";
+      break;
+    case ASSIGN:
+      return "ASSIGN";
+      break;
+    case MINUS:
+      return "MINUS";
+      break;
+    case BANG:
+      return "BANG";
+      break;
+    case ASTERISK:
+      return "ASTERISK";
+      break;
+    case SLASH:
+      return "SLASH";
+      break;
+    case LT:
+      return "LT";
+      break;
+    case GT:
+      return "GT";
+      break;
+    case COMMA:
+      return "COMMA";
+      break;
+    case SEMICOLON:
+      return "SEMICOLON";
+      break;
+    case LPAREN:
+      return "LPAREN";
+      break;
+    case RPAREN:
+      return "RPAREN";
+      break;
+    case LBRACE:
+      return "LBRACE";
+      break;
+    case RBRACE:
+      return "RBRACE";
+      break;
+    case FUNCTION:
+      return "FUNCTION";
+      break;
+    case LET:
+      return "LET";
+      break;
+    case TRUE:
+      return "TRUE";
+      break;
+    case FALSE:
+      return "FALSE";
+      break;
+    case IF:
+      return "IF";
+      break;
+    case ELSE:
+      return "ELSE";
+      break;
+    case RETURN:
+      return "RETURN";
+      break;
+  }
+}
