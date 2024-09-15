@@ -2,6 +2,7 @@
 
 #include <string>
 #include <iostream>
+#include <variant>
 
 #include "lexer.h"
 #include "token.h"
@@ -51,7 +52,13 @@ TEST(Token, LetStatementTest) {
 
   print_errors(p);
   ASSERT_EQ(program.statements.size(), 3);
-  for (auto s: program.statements) ASSERT_EQ(s.t, NodeType::LetStatement_);
+  for (auto s: program.statements) {
+    bool is_ret = false; 
+    if (std::holds_alternative<Statement>(s)){
+      is_ret = std::holds_alternative<LetStatement>(std::get<Statement>(s));
+    }
+    ASSERT_TRUE(is_ret);
+  }
 
 }
 
@@ -68,5 +75,11 @@ TEST(Token, ReturnStatementTest) {
 
   print_errors(p);
   ASSERT_EQ(program.statements.size(), 3);
-  for (auto s: program.statements) ASSERT_EQ(s.t, NodeType::ReturnStatement_);
+  for (auto s: program.statements){
+    bool is_ret = false; 
+    if (std::holds_alternative<Statement>(s)){
+      is_ret = std::holds_alternative<ReturnStatement>(std::get<Statement>(s));
+    }
+    ASSERT_TRUE(is_ret);
+  }
 }

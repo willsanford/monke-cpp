@@ -4,14 +4,14 @@ project(monke_cpp)
 
 add_compile_options(-Wall -Wextra -pedantic)
 # SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include_directories(src)
 add_library(monke_core STATIC 
   src/token.h 
+  src/token.cpp 
   src/lexer.h 
   src/lexer.cpp 
-  src/token.cpp 
   src/ast.h 
   src/ast.cpp 
   src/parser.cpp 

@@ -4,8 +4,7 @@
 #include "parser.h"
 #include "ast.h"
 #include "token.h"
-#include <cassert>
-#include <cstddef>
+#include <variant>
 
 Parser::Parser(Lexer *l) : l(l) {
     next_token();
@@ -46,7 +45,6 @@ bool Parser::expect_peek(token_t t){
 }
 
 Statement Parser::parse_statement(){
-  std::cout << "statement: " << cur_token.literal << std::endl;
   switch (cur_token.ttype) {
     case ::LET:
       return parse_let_statement();
@@ -76,7 +74,7 @@ Statement Parser::parse_let_statement(){
   if (!expect_peek(::IDENT))
     return NullStatement();
   
-  stmt.name = Identifier(cur_token, cur_token.literal);
+  stmt.name = Identifier(cur_token.literal);
 
   if (!expect_peek(::ASSIGN))
     return NullStatement();
@@ -93,7 +91,7 @@ Program Parser::parse_program() {
   
   while (cur_token.ttype != ::EOF_){
     Statement stmt = parse_statement();
-    if (stmt.t != NodeType::NullStatement_)
+    if (!std::holds_alternative<NullStatement>(stmt))
       p->statements.push_back(stmt);
     
     next_token();

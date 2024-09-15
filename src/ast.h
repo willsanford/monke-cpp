@@ -5,82 +5,66 @@
 #ifndef MONKE_CPP_AST_H
 #define MONKE_CPP_AST_H
 
-#include <vector>
 #include <string>
+#include <utility>
+#include <variant>
+#include <vector>
 
 #include "token.h"
 
-enum class NodeType {
-    Node_,
-    Statement_,
-    NullStatement_,
-    Expression_,
-    Identifier_,
-    LetStatement_,
-    ReturnStatement_
+template <class... Ts> struct overloads : Ts... {
+  using Ts::operator()...;
 };
+template <class... Ts> overloads(Ts...) -> overloads<Ts...>;
 
-class Node {
+class NullStatement{
 public:
-    std::string token_literal();
-    NodeType t = NodeType::Node_;
+  NullStatement(){}
+  std::string token_literal() { return "NullStatement"; }
+  std::string string() { return "NullStatement"; };
 };
 
-class Statement : public Node {
+class Identifier {
 public:
-    using Node::token_literal;
-    NodeType t = NodeType::Statement_;
+  Identifier() : token(Token(token_t::IDENT, "DEFAULT")){};
+  Identifier(std::string value) : token(Token(token_t::IDENT, value)){};
+  Token token;
+  std::string token_literal() { return token.literal; }
+  std::string string() { std::unreachable(); }
 };
 
-class NullStatement : public Statement {
+typedef std::variant<Identifier> Expression;
+class LetStatement {
 public:
-    std::string token_literal(){ return "NULL"; }
-    NodeType t = NodeType::NullStatement_;
+  LetStatement() : token(Token(token_t::LET, "let")) {};
+  Token token;
+  Identifier name;
+  Expression value;
+  std::string token_literal() { return token.literal; }
+  std::string string() {
+    std::unreachable();
+  };
 };
 
-class Expression : public Node {
+class ReturnStatement {
 public:
-    using Node::token_literal;
-    NodeType t = NodeType::Expression_;
+  ReturnStatement(Expression return_value) : token(Token(token_t::RETURN, "Return")) , return_value(return_value){};
+  ReturnStatement() : token(Token(token_t::RETURN, "Return")), return_value(Expression()){}; 
+  Token token;
+  Expression return_value;
+  std::string token_literal() { return token.literal; }
+  std::string string() { std::unreachable(); }
 };
 
-class Identifier : public Expression {
-public:
-    using Expression::token_literal;
-    NodeType t = NodeType::Identifier_;
-
-    Identifier(Token t, std::string n);
-    Identifier(){}
-    Token token; // Always token_t::IDENT
-    std::string value;
-};
-
-class LetStatement : public Statement {
-public:
-    NodeType t = NodeType::LetStatement_;
-    LetStatement();
-    Token token;
-    Identifier name;
-    Expression value;
-    std::string token_literal();
-};
-
-class ReturnStatement : public Statement {
-public:
-    NodeType t = NodeType::ReturnStatement_;
-    ReturnStatement();
-
-    Token token; // Always token_t::RETURN
-    Expression return_value;
-    
-    std::string token_literal();
-};
+typedef std::variant<NullStatement, LetStatement, ReturnStatement> Statement;
+typedef std::variant<Statement, Expression> Node;
 
 class Program {
 public:
-    Program();
-    std::string token_literal();
-    std::vector<Statement> statements;
+  Program();
+  std::string token_literal();
+  std::string string();
+  std::vector<Node> statements;
 };
 
-#endif //MONKE_CPP_AST_H
+#endif // MONKE_CPP_AST_H
