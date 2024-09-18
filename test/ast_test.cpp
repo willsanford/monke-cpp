@@ -11,10 +11,10 @@
 TEST(AST, LetStatementStringTest) {
   Program p;
   LetStatement l;
-  l.name = Identifier("some_name");
-  l.value = Expression(Identifier("some_value"));
+  l.name = Identifier(Token(token_t::IDENT, "some_name"));
+  l.value = Expression(Identifier(Token(token_t::IDENT, "some_value")));
   p.statements = {
                   l
   };
-  ASSERT_EQ(p.string(), "let some_name = some_value;");
+  ASSERT_EQ(p.string(), "let some_name = some_value;\n");
 }

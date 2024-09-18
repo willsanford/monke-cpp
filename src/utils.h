@@ -8,8 +8,13 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <ranges>
 std::string str_join(std::vector<std::string> strs){
-  return std::ranges::fold_left(strs, "", [](std::string a, std::string b) -> std::string{ return a + b; });
+  std::string result;
+  for (auto str : strs) {
+    result += str;
+  }
+  return result;
 }
 
 

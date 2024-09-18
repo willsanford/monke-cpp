@@ -5,10 +5,12 @@
 #ifndef MONKE_CPP_PARSER_H
 #define MONKE_CPP_PARSER_H
 
+#include <vector>
+#include <functional>
+#include <optional>
 #include "token.h"
 #include "lexer.h"
 #include "ast.h"
-#include <vector>
 class Parser {
 public:
     Parser(Lexer* l);
@@ -28,12 +30,15 @@ public:
     std::vector<std::string> get_errors();
     
     void peek_error(token_t t);
-    Statement parse_statement();
-    Statement parse_let_statement();
-    Statement parse_return_statement();
+    std::optional<Statement> parse_statement();
+    std::optional<Statement> parse_let_statement();
+    std::optional<Statement> parse_return_statement();
+    std::optional<Statement> parse_expression_statement();
 
-    Expression prefix_parse_fn();
-    Expression infix_parse_fn(Expression ex);
+    std::optional<Expression> parse_expression(precedence p);
+    std::optional<Expression> parse_integer_literal();
+    std::optional<std::function<Expression(void)>> prefix_parse_fns(token_t t);
+    Expression infix_parse_fns(token_t t, Expression ex);
 
     Program parse_program();
 };

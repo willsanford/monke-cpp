@@ -2,6 +2,7 @@
 // Created by William Sanford on 7/14/2023.
 //
 
+#include <iostream>
 #include "ast.h"
 #include "token.h"
 #include "utils.h"
@@ -30,61 +31,68 @@ std::string Identifier::string(){
   return token_literal();
 }
 
-auto Expression_token_literal(Expression &expression) -> std::string {
-  return std::visit(overloads{
-    [](Identifier &i) -> std::string { return i.token_literal(); }
-  }, expression);
-};
-
 auto Expression_string(Expression &expression) -> std::string {
   return std::visit(overloads{
-    [](Identifier &i) -> std::string { return i.string(); }
+    [](auto &i) -> std::string { return i.string(); },
   }, expression);
 };
 
-auto Statement_token_literal(Statement &statement) -> std::string {
+auto Statement_string(Statement &expression) -> std::string {
   return std::visit(overloads{
-    [](NullStatement &s) -> std::string { return s.token_literal(); },
-    [](LetStatement &s) -> std::string { return s.token_literal(); },
-    [](ReturnStatement &s) -> std::string { return s.token_literal(); },
-  }, statement);
+    [](auto &i) -> std::string { return i.string(); },
+  }, expression);
 };
 
-auto Statement_string(Statement &statement) -> std::string {
-  return std::visit(overloads{
-          [](NullStatement &s) -> std::string { return s.string(); },
-          [](LetStatement &s) -> std::string { return s.string(); },
-          [](ReturnStatement &s) -> std::string { return s.string(); },
-  }, statement);
-};
-auto token_literal(Node n) -> std::string {
-  return std::visit(overloads{
-    [](Statement &n) ->std::string {return Statement_token_literal(n); },
-    [](Expression &n) ->std::string {return Expression_token_literal(n); }
-  }, n);
+template<typename T, std::enable_if_t<!is_variant_v<T>, int>>
+auto token_literal(T node) -> std::string {
+  return node.token_literal();
+}
+
+template<typename T, std::enable_if_t<is_variant_v<T>, int>>
+auto token_literal(T node) -> std::string {
+  return std::visit(overloads {
+    [](auto &n) ->std::string { return token_literal(n); },
+  }, node);
 }
 
 std::string string(Node n){
   return std::visit(overloads{
-          [](Statement &n) ->std::string {return Statement_string(n); },
-          [](Expression &n) ->std::string {return Expression_string(n); }
+          [](Statement &statement) ->std::string {return Statement_string(statement); },
+          [](Expression &expression) ->std::string {return Expression_string(expression); }
   }, n);
 }
 
 std::string Program::token_literal(){
-    if (!statements.empty()){
-        return ::token_literal(statements[0]);
-    } else {
-        return "";
-    }
+  std::string out;
+  for (const auto &statement : statements) {
+    out += ::token_literal(statement) + '\n';
+  }
+  return out;
 }
 
 std::string Program::string() {
-    if (!statements.empty()){
-        return ::string(statements[0]);
-    } else {
-        return "";
-    }
+  std::string out;
+  for (const auto &statement : statements) {
+    out += ::string(statement) + '\n';
+  }
+  return out;
+}
+
+template<typename T, typename U>
+bool compareHelper(const U& lhs, const T& rhs) {
+  if (const U* rhsPtr = std::get_if<U>(&rhs)) {
+    return lhs == *rhsPtr;
+  }
+  return false;
+}
+
+template<typename T>
+bool operator==(const T& lhs, const T& rhs) {
+  return std::visit(overloads{
+    [&rhs](const auto& l) -> bool {
+      return compareHelper<T>(l, rhs);
+    },
+  }, lhs);
 }
 
 template<typename  T>
@@ -94,16 +102,12 @@ bool is_node_type(Node &n){
 
 template<>
 bool is_node_type<LetStatement>(Node &n){
-  if (std::holds_alternative<Statement>(n)){
-    return std::holds_alternative<LetStatement>(std::get<Statement>(n));
-  }
-  return false;
+  return std::holds_alternative<Statement>(n) &&
+    std::holds_alternative<LetStatement>(std::get<Statement>(n));
 }
 
 template<>
 bool is_node_type<ReturnStatement>(Node &n){
-  if (std::holds_alternative<Statement>(n)){
-    return std::holds_alternative<ReturnStatement>(std::get<Statement>(n));
-  }
-  return false;
+  return std::holds_alternative<Statement>(n) &&
+    std::holds_alternative<ReturnStatement>(std::get<Statement>(n));
 }
