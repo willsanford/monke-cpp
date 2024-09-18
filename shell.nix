@@ -4,6 +4,7 @@ pkgs.mkShell rec {
   SHELL_NAME = "cpp";
   
   buildInputs = with pkgs; [
+    jetbrains.clion
     gcc
     cmake
     ninja

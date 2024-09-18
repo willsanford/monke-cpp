@@ -15,7 +15,8 @@ add_library(monke_core STATIC
   src/ast.h 
   src/ast.cpp 
   src/parser.cpp 
-  src/parser.h)
+  src/parser.h
+        src/utils.h)
 
 add_executable(monke_cpp src/main.cpp)
 target_link_libraries(monke_cpp monke_core)

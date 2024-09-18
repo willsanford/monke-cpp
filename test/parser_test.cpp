@@ -17,12 +17,11 @@ void print_errors(Parser &p){
   }
 }
 
-TEST(Token, BasicParserTest) {
+TEST(Parser, BasicParserTest) {
   std::string input = R"(
   let x = 5;
   let y = 10; 
   let foobar = 838383;)";
-
   Lexer *l = new Lexer(input);
   Parser p = Parser(l);
 
@@ -39,7 +38,7 @@ TEST(Token, BasicParserTest) {
   
   ASSERT_EQ(program.statements.size(), 3);
 }
-TEST(Token, LetStatementTest) {
+TEST(Parser, LetStatementTest) {
   std::string input = R"(
   let x = 5;
   let y = 10; 
@@ -52,34 +51,34 @@ TEST(Token, LetStatementTest) {
 
   print_errors(p);
   ASSERT_EQ(program.statements.size(), 3);
-  for (auto s: program.statements) {
-    bool is_ret = false; 
-    if (std::holds_alternative<Statement>(s)){
-      is_ret = std::holds_alternative<LetStatement>(std::get<Statement>(s));
-    }
-    ASSERT_TRUE(is_ret);
-  }
-
+  for (auto s: program.statements)
+    ASSERT_TRUE(is_node_type<LetStatement>(s));
 }
 
-TEST(Token, ReturnStatementTest) {
+TEST(Parser, ReturnStatementTest) {
   std::string input = R"(
   return 5;
   return 10; 
   return 234234234234;)";
 
-  Lexer *l = new Lexer(input);
+  auto *l = new Lexer(input);
   Parser p = Parser(l);
 
   Program program = p.parse_program();
 
   print_errors(p);
   ASSERT_EQ(program.statements.size(), 3);
-  for (auto s: program.statements){
-    bool is_ret = false; 
-    if (std::holds_alternative<Statement>(s)){
-      is_ret = std::holds_alternative<ReturnStatement>(std::get<Statement>(s));
-    }
-    ASSERT_TRUE(is_ret);
-  }
+  for (auto s: program.statements)
+    ASSERT_TRUE(is_node_type<ReturnStatement>(s));
+}
+
+TEST(Parser, IdentifierExpressionTest) {
+  std::string input = "foobar";
+  auto *l = new Lexer(input);
+  Parser p = Parser(l);
+
+  Program program = p.parse_program();
+  ASSERT_EQ(program.statements.size(), 1);
+
+  // TODO: Check that this comes out valid
 }

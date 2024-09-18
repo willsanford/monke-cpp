@@ -32,6 +32,9 @@ public:
     Statement parse_let_statement();
     Statement parse_return_statement();
 
+    Expression prefix_parse_fn();
+    Expression infix_parse_fn(Expression ex);
+
     Program parse_program();
 };
 

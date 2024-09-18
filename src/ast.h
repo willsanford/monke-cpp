@@ -8,9 +8,19 @@
 #include <string>
 #include <utility>
 #include <variant>
-#include <vector>
-
 #include "token.h"
+
+// Operator Precedence
+enum struct precedence {
+  lowest = 0,
+  equals = 1,
+  lessgreater = 2,
+  sum = 3,
+  product = 4,
+  prefix = 5,
+  call = 6
+};
+
 
 template <class... Ts> struct overloads : Ts... {
   using Ts::operator()...;
@@ -30,7 +40,7 @@ public:
   Identifier(std::string value) : token(Token(token_t::IDENT, value)){};
   Token token;
   std::string token_literal() { return token.literal; }
-  std::string string() { std::unreachable(); }
+  std::string string();
 };
 
 typedef std::variant<Identifier> Expression;
@@ -41,9 +51,7 @@ public:
   Identifier name;
   Expression value;
   std::string token_literal() { return token.literal; }
-  std::string string() {
-    std::unreachable();
-  };
+  std::string string();
 };
 
 class ReturnStatement {
@@ -53,15 +61,38 @@ public:
   Token token;
   Expression return_value;
   std::string token_literal() { return token.literal; }
-  std::string string() { std::unreachable(); }
+  std::string string();
 };
 
-typedef std::variant<NullStatement, LetStatement, ReturnStatement> Statement;
+class ExpressionStatement {
+  public:
+      ExpressionStatement(Expression e) : e(e){};
+      Token token
+      Expression e
+
+
+};
+typedef std::variant<NullStatement, LetStatement, ReturnStatement, ExpressionStatement> Statement;
 typedef std::variant<Statement, Expression> Node;
+
+auto token_literal(Node n) -> std::string;
+
+
+template<typename  T>
+bool is_node_type(Node &n);
+
+template<>
+bool is_node_type<LetStatement>(Node &n);
+
+template<>
+bool is_node_type<ReturnStatement>(Node &n);
 
 class Program {
 public:
-  Program();
+  Program(){
+    statements = {};
+
+  };
   std::string token_literal();
   std::string string();
   std::vector<Node> statements;
