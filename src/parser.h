@@ -25,7 +25,8 @@ public:
     bool cur_token_is(token_t t);
     bool peek_token_is(token_t t);
     bool expect_peek(token_t t);
-
+    precedence peek_precedence();
+    precedence cur_precedence();
 
     std::vector<std::string> get_errors();
     
@@ -36,9 +37,13 @@ public:
     std::optional<Statement> parse_expression_statement();
 
     std::optional<Expression> parse_expression(precedence p);
-    std::optional<Expression> parse_integer_literal();
-    std::optional<std::function<Expression(void)>> prefix_parse_fns(token_t t);
-    Expression infix_parse_fns(token_t t, Expression ex);
+    std::optional<Expression> prefix_parse_fns(token_t t);
+    std::optional<Expression> parse_identifier();
+    std::optional<Expression> parse_int_literal();
+    std::optional<Expression> parse_prefix_expression();
+    std::optional<Expression> parse_infix_expression(Expression left);
+    std::optional<std::function<std::optional<Expression>(Expression)>> infix_parse_fns(token_t t);
+
 
     Program parse_program();
 };
