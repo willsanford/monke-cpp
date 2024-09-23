@@ -81,30 +81,33 @@ std::optional<Statement> Parser::parse_expression_statement() {
 }
 
 std::optional<Expression> Parser::parse_expression(precedence p) {
-  auto left_exp = prefix_parse_fns(cur_token.ttype);
-  if (!left_exp.has_value()) {
+  auto left_exp_opt= prefix_parse_fns(cur_token.ttype);
+  if (!left_exp_opt.has_value()) {
     return std::nullopt;
   }
+  auto left_exp = left_exp_opt.value();
   while (!peek_token_is(token_t::SEMICOLON) && p < peek_precedence()) {
-    std::cout << "starting next" << std::endl;
-    auto infix = infix_parse_fns(cur_token.ttype);
-    if (!infix.has_value()) {
+    auto infix_opt = infix_parse_fns(peek_token.ttype);
+    if (!infix_opt.has_value()) {
       return left_exp;
     }
-    std::cout << "starting next2" << std::endl;
+    auto infix = infix_opt.value();
     next_token();
-    left_exp = infix.value()(left_exp.value());
-    std::cout << "starting next3" << std::endl;
-    if (!left_exp.has_value()) return std::nullopt;
+    left_exp_opt = infix(left_exp);
+    if (!left_exp_opt.has_value()) return std::nullopt;
+    left_exp = left_exp_opt.value();
   }
-  std::cout << "starting next4" << std::endl;
-  std::cout << left_exp.value() << std::endl;
   return left_exp;
 }
 
 std::optional<Expression> Parser::parse_identifier() {
   return {cur_token};
 }
+
+std::optional<Expression> Parser::parse_boolean() {
+  return Boolean(cur_token, cur_token_is(::TRUE));
+}
+
 std::optional<Expression> Parser::parse_int_literal() {
   auto int_str = cur_token.literal;
 
@@ -112,7 +115,7 @@ std::optional<Expression> Parser::parse_int_literal() {
     errors.push_back(std::format("Cannot parse the int {}", int_str));
     return std::nullopt;
   }
-  uint64_t val = std::stoull(int_str);
+  int64_t val = std::stoull(int_str);
   return IntegerLiteral({cur_token, val});
 }
 
@@ -147,21 +150,180 @@ std::optional<Expression> Parser::parse_infix_expression(Expression left) {
   }
 }
 
+std::optional<Expression> Parser::parse_grouped_expression() {
+  next_token();
+
+  auto exp = parse_expression(precedence::lowest);
+  if (!expect_peek(token_t::RPAREN)) {
+    return std::nullopt;
+  }
+  return exp;
+}
+
+std::optional<BlockStatement> Parser::parse_block_statement() {
+  std::vector<std::pair<StatementType, void*>> stmts;
+  Token bt = cur_token;
+  next_token();
+
+  while (!cur_token_is(RBRACE) && !cur_token_is(EOF_)) {
+    auto stmt = parse_statement();
+    if (stmt.has_value()) {
+      if (std::holds_alternative<LetStatement>(stmt.value())) {
+        stmts.push_back({StatementType::LS,new Statement(stmt.value())});
+      }
+      if (std::holds_alternative<ReturnStatement>(stmt.value())) {
+        stmts.push_back({StatementType::RS,new Statement(stmt.value())});
+      }
+      if (std::holds_alternative<BlockStatement>(stmt.value())) {
+        stmts.push_back({StatementType::BS,new Statement(stmt.value())});
+      }
+      if (std::holds_alternative<ExpressionStatement>(stmt.value())) {
+        stmts.push_back({StatementType::ES,new Statement(stmt.value())});
+      }
+    }
+    next_token();
+  }
+  return BlockStatement(bt, stmts);
+}
+
+std::optional<Expression> Parser::parse_if_expression() {
+  auto exp = IfExpression();
+  exp.t = cur_token;
+
+  if (!expect_peek(token_t::LPAREN)) {
+    return std::nullopt;
+  }
+
+  next_token();
+  auto cond = parse_expression(precedence::lowest);
+  if (!cond.has_value()) {
+    errors.push_back("Could not parse the condition in the if statement");
+    return std::nullopt;
+  }
+  exp.condition = new Expression(cond.value());
+
+  if (!expect_peek(RPAREN)) {
+    return std::nullopt;
+  }
+
+  if (!expect_peek(LBRACE)) {
+    return std::nullopt;
+  }
+
+  auto cons = parse_block_statement();
+  if (!cons.has_value()) {
+    return std::nullopt;
+  }
+
+  exp.consequence = new BlockStatement(cons.value());
+
+  if (peek_token_is(ELSE)) {
+    next_token();
+    if (!expect_peek(LBRACE)) {
+      return std::nullopt;
+    }
+
+    auto alt = parse_block_statement();
+    if (!alt.has_value()) {
+      return std::nullopt;
+    }
+    exp.alternative = new BlockStatement(alt.value());
+  }else {
+    exp.alternative = std::nullopt;
+  }
+
+  return exp;
+}
+
+std::optional<std::vector<Identifier*>> Parser::parse_function_parameters() {
+  std::vector<Identifier*> idents;
+  if (peek_token_is(RPAREN)) return idents;
+
+  next_token();
+
+  idents.emplace_back(new Identifier(cur_token));
+
+  while (peek_token_is(COMMA)) {
+    next_token();
+    next_token();
+    idents.emplace_back(new Identifier(cur_token));
+
+  }
+  if (!expect_peek(RPAREN)) return std::nullopt;
+
+  return idents;
+};
+std::optional<Expression> Parser::parse_function_expression() {
+  Token ft = cur_token;
+
+  if (!expect_peek(LPAREN)) return std::nullopt;
+
+  auto params = parse_function_parameters();
+  if (!params.has_value()) return std::nullopt;
+
+  if (!expect_peek(LBRACE)) return std::nullopt;
+
+  auto body = parse_block_statement();
+  if (!body.has_value()) return std::nullopt;
+
+  return FunctionLiteral(ft, params.value(), new BlockStatement(body.value()));
+};
+
 std::optional<Expression> Parser::prefix_parse_fns(token_t t) {
   switch (t) {
     case ::IDENT:
       return parse_identifier();
+    case ::TRUE: case ::FALSE:
+      return parse_boolean();
     case ::INT:
       return parse_int_literal();
     case ::BANG:
     case ::MINUS:
       return parse_prefix_expression();
+    case ::LPAREN:
+      return parse_grouped_expression();
+    case ::IF:
+      return parse_if_expression();
+    case ::FUNCTION:
+      return parse_function_expression();
     default:
       errors.push_back(std::format("No prefix parse function for {} found", get_token_name(t)));
       return std::nullopt;
   }
 };
 
+std::optional<Expression> Parser::parse_call_expression(Expression left) {
+  Token t = cur_token;
+  auto args = parse_call_arguments();
+  if (!args.has_value()) return std::nullopt;
+  return CallExpression(t, new Expression(left), args.value());
+
+}
+
+std::optional<std::vector<Expression *>> Parser::parse_call_arguments() {
+  std::vector<Expression *> args;
+  if (peek_token_is(RPAREN)) {
+    next_token();
+    return args;
+  }
+
+  next_token();
+  auto arg = parse_expression(precedence::lowest);
+  if (!arg.has_value()) return std::nullopt;
+  args.push_back(new Expression(arg.value()));
+
+  while (peek_token_is(COMMA)) {
+    next_token();
+    next_token();
+    arg = parse_expression(precedence::lowest);
+    if (!arg.has_value()) return std::nullopt;
+    args.push_back(new Expression(arg.value()));
+  }
+
+  if (!expect_peek(RPAREN)) return std::nullopt;
+
+  return args;
+}
 
 std::optional<std::function<std::optional<Expression>(Expression)>> Parser::infix_parse_fns(token_t t) {
   switch (t) {
@@ -176,17 +338,26 @@ std::optional<std::function<std::optional<Expression>(Expression)>> Parser::infi
       return [&](Expression e) -> std::optional<Expression> {
         return parse_infix_expression(e);
       };
+    case ::LPAREN:
+      return [&](Expression e) -> std::optional<Expression> {
+        return parse_call_expression(e);
+      };
+    default:
+      std::cout << get_token_name(t) << std::endl;
+      return std::nullopt;
   }
 }
+
 std::optional<Statement> Parser::parse_return_statement() {
   ReturnStatement stmt = ReturnStatement();
+  stmt.token = cur_token;
 
   next_token();
 
-  // We're skipping the expression until we encounter a semicolon
-  while (!cur_token_is(::SEMICOLON))
-    next_token();
-
+  auto expr = parse_expression(precedence::lowest);
+  if (!expr.has_value()) return std::nullopt;
+  if (peek_token_is(SEMICOLON)) next_token();
+  stmt.return_value = expr.value();
   return stmt;
 }
 
@@ -202,9 +373,12 @@ std::optional<Statement> Parser::parse_let_statement() {
   if (!expect_peek(::ASSIGN))
     return std::nullopt;
 
-  // TODO :: We're skipping the expressions until we encounter a semicolon
-  while (!cur_token_is(::SEMICOLON))
-    next_token();
+  next_token();
+  auto value = parse_expression(precedence::lowest);
+  if (!value.has_value()) return std::nullopt;
+  if (peek_token_is(SEMICOLON)) next_token();
+
+  stmt.value = value.value();
 
   return stmt;
 }

@@ -13,6 +13,7 @@ add_executable(
         token_test.cpp
         parser_test.cpp
         main.cpp
-        ast_test.cpp)
+        ast_test.cpp
+        eval_test.cpp)
 target_link_libraries(unittests GTest::gtest_main gtest gtest_main monke_core)
 gtest_discover_tests(unittests)

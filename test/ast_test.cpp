@@ -16,5 +16,5 @@ TEST(AST, LetStatementStringTest) {
   p.statements = {
                   l
   };
-  ASSERT_EQ(p.string(), "let some_name = some_value;\n");
+  ASSERT_EQ(p.string(), "let some_name = some_value;");
 }
