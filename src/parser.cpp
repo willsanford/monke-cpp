@@ -105,7 +105,7 @@ std::optional<Expression> Parser::parse_identifier() {
 }
 
 std::optional<Expression> Parser::parse_boolean() {
-  return Boolean(cur_token, cur_token_is(::TRUE));
+  return BooleanLiteral(cur_token, cur_token_is(::TRUE));
 }
 
 std::optional<Expression> Parser::parse_int_literal() {

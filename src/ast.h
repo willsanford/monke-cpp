@@ -6,8 +6,10 @@
 #define MONKE_CPP_AST_H
 
 #include "token.h"
+
 #include <algorithm>
 #include <cstdint>
+#include <memory>
 #include <numeric>
 #include <optional>
 #include <ranges>
@@ -15,7 +17,6 @@
 #include <utility>
 #include <variant>
 #include <vector>
-#include <memory>
 
 #include "utils.h"
 
@@ -40,7 +41,7 @@ class Identifier;
 class IntegerLiteral;
 class PrefixExpression;
 class InfixExpression;
-class Boolean;
+class BooleanLiteral;
 class CallExpression;
 class IfExpression;
 class FunctionLiteral;
@@ -48,10 +49,13 @@ class LetStatement;
 class ReturnStatement;
 class ExpressionStatement;
 class BlockStatement;
-typedef std::variant<Boolean, Identifier, IntegerLiteral, PrefixExpression, InfixExpression, IfExpression, FunctionLiteral, CallExpression> Expression;
+typedef std::variant<BooleanLiteral, Identifier, IntegerLiteral, PrefixExpression, InfixExpression, IfExpression, FunctionLiteral, CallExpression> Expression;
 // See block statement for why we need this
 enum class StatementType {
-  LS, RS, ES, BS
+  LS,
+  RS,
+  ES,
+  BS
 };
 typedef std::variant<LetStatement, ReturnStatement, ExpressionStatement, BlockStatement> Statement;
 typedef std::variant<Statement, Expression> Node;
@@ -60,20 +64,20 @@ typedef std::variant<Statement, Expression> Node;
  * In the future we can change this.
  */
 class BlockStatement {
-public:
-  BlockStatement(std::vector<std::pair<StatementType, void*>> statements) : statements(statements){};
-  BlockStatement(Token t, std::vector<std::pair<StatementType, void*>> statements) : t(t), statements(statements){};
+  public:
+  BlockStatement(std::vector<std::pair<StatementType, void *>> statements) : statements(statements){};
+  BlockStatement(Token t, std::vector<std::pair<StatementType, void *>> statements) : t(t), statements(statements){};
   Token t;
-  std::vector<std::pair<StatementType, void*>> statements;
+  std::vector<std::pair<StatementType, void *>> statements;
   // Helpful function to decode the above into what we actually want
-  const std::vector<Statement> get_statements() const ;
+  const std::vector<Statement> get_statements() const;
   std::string token_literal() { return t.literal; }
   std::string string();
   bool operator==(const BlockStatement &other) const;
 };
 
 class CallExpression {
-public:
+  public:
   Token t;
   Expression *function;
   std::vector<Expression *> arguments;
@@ -85,12 +89,12 @@ public:
 };
 
 class FunctionLiteral {
-public:
-  FunctionLiteral(Token t, std::vector<Identifier*> parameters, BlockStatement* body) : t(t),  parameters(parameters), body(body){};
-  FunctionLiteral(std::vector<Identifier*> parameters, BlockStatement* body) : parameters(parameters), body(body){};
+  public:
+  FunctionLiteral(Token t, std::vector<Identifier *> parameters, BlockStatement *body) : t(t), parameters(parameters), body(body){};
+  FunctionLiteral(std::vector<Identifier *> parameters, BlockStatement *body) : parameters(parameters), body(body){};
   Token t;
-  std::vector<Identifier*> parameters;
-  BlockStatement* body;
+  std::vector<Identifier *> parameters;
+  BlockStatement *body;
   std::string token_literal() { return t.literal; }
   std::string string();
   bool operator==(const FunctionLiteral &other) const;
@@ -110,15 +114,15 @@ class IfExpression {
   bool operator==(const IfExpression &other) const;
 };
 
-class Boolean {
+class BooleanLiteral {
   public:
-  Boolean(){};
-  Boolean(Token t, bool value) : t(t), value(value){};
+  BooleanLiteral(){};
+  BooleanLiteral(Token t, bool value) : t(t), value(value){};
   Token t;
   bool value;
   std::string token_literal() { return value ? "true" : "false"; }
   std::string string() { return token_literal(); };
-  bool operator==(const Boolean &other) const { return other.value == value; }
+  bool operator==(const BooleanLiteral &other) const { return other.value == value; }
 };
 
 class Identifier {
@@ -181,7 +185,7 @@ class InfixExpression {
 class LetStatement {
   public:
   LetStatement() : token(Token(LET, "let")){};
-  LetStatement(Identifier name, Expression value) : token(Token(LET, "let")), name(name), value(value) {};
+  LetStatement(Identifier name, Expression value) : token(Token(LET, "let")), name(name), value(value){};
   Token token;
   Identifier name;
   Expression value;
@@ -259,7 +263,7 @@ std::ostream &operator<<(std::ostream &os, const BlockStatement &obj);
 std::ostream &operator<<(std::ostream &os, const PrefixExpression &obj);
 std::ostream &operator<<(std::ostream &os, const InfixExpression &obj);
 std::ostream &operator<<(std::ostream &os, const Identifier &obj);
-std::ostream &operator<<(std::ostream &os, const Boolean &obj);
+std::ostream &operator<<(std::ostream &os, const BooleanLiteral &obj);
 std::ostream &operator<<(std::ostream &os, const FunctionLiteral &obj);
 std::ostream &operator<<(std::ostream &os, const IntegerLiteral &obj);
 std::ostream &operator<<(std::ostream &os, const CallExpression &obj);

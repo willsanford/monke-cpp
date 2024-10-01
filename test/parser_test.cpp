@@ -23,11 +23,11 @@ void print_errors(Parser &p) {
 }
 
 bool test_bool(Expression &e, bool value) {
-    if (!std::holds_alternative<Boolean>(e)) {
+    if (!std::holds_alternative<BooleanLiteral>(e)) {
         std::cerr << "The following expression should be an bool: " << e << std::endl;
         return false;
     }
-    auto int_l = std::get<Boolean>(e);
+    auto int_l = std::get<BooleanLiteral>(e);
 
     if (int_l.t.ttype != token_t::TRUE && int_l.t.ttype != token_t::FALSE) {
         std::cerr << "The following expression should be an bool: " << e << std::endl;
@@ -259,7 +259,7 @@ TEST(Parser, BooleanLiteralExpressionTest) {
         Program program = p.parse_program();
         ASSERT_EQ(program.statements.size(), 1);
         std::vector<Statement> program_statements = {
-            ExpressionStatement(Boolean(Token(correct ? token_t::TRUE : token_t::FALSE, correct ? "true" : "false"),
+            ExpressionStatement(BooleanLiteral(Token(correct ? token_t::TRUE : token_t::FALSE, correct ? "true" : "false"),
                                         correct)),
         };
         ASSERT_EQ(program.statements, program_statements);
@@ -305,7 +305,7 @@ TEST(Parser, PrefixExpressionTest) {
         // Create the correct expression statement
         auto pre = PrefixExpression(
             prefix,
-            new Expression(Boolean(Token(token_t::INT, std::to_string(val)), val)));
+            new Expression(BooleanLiteral(Token(token_t::INT, std::to_string(val)), val)));
         auto e = ExpressionStatement(pre);
         ASSERT_EQ(expr, e);
     }

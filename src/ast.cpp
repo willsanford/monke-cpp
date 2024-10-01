@@ -248,8 +248,8 @@ std::ostream &operator<<(std::ostream &os, const Identifier &obj) {
   return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const Boolean &obj) {
-  os << "Boolean(val=" << obj.value << ")";
+std::ostream &operator<<(std::ostream &os, const BooleanLiteral &obj) {
+  os << "BooleanLiteral(val=" << obj.value << ")";
   return os;
 }
 
