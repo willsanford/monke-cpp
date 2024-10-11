@@ -18,7 +18,7 @@ class Lexer {
 public:
     Lexer(std::string input);
     Token next_token();
-
+    std::optional<Token> lex_integral();
 private:
     std::string input;
     size_t position;
@@ -26,19 +26,19 @@ private:
     char c;
 
     std::unordered_map<char, token_t> char_map = {
-            {';', token_t::SEMICOLON},
-            {')', token_t::RPAREN},
-            {'(', token_t::LPAREN},
-            {'}', token_t::RBRACE},
-            {'{', token_t::LBRACE},
-            {',', token_t::COMMA},
-            {'+', token_t::PLUS},
-            {'-', token_t::MINUS},
-            {'*', token_t::ASTERISK},
-            {'/', token_t::SLASH},
-            {'<', token_t::LT},
-            {'>', token_t::GT},
-            {'\0', token_t::EOF_}
+            {';', SEMICOLON},
+            {')', RPAREN},
+            {'(', LPAREN},
+            {'}', RBRACE},
+            {'{', LBRACE},
+            {',', COMMA},
+            {'+', PLUS},
+            {'-', MINUS},
+            {'*', ASTERISK},
+            {'/', SLASH},
+            {'<', LT},
+            {'>', GT},
+            {'\0', EOF_}
     };
 
 

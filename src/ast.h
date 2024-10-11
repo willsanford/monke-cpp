@@ -39,6 +39,9 @@ bool operator==(const T &lhs, const T &rhs);
 // Forward declarations
 class Identifier;
 class IntegerLiteral;
+class FloatLiteral;
+class StringLiteral;
+class CharLiteral;
 class PrefixExpression;
 class InfixExpression;
 class BooleanLiteral;
@@ -49,7 +52,17 @@ class LetStatement;
 class ReturnStatement;
 class ExpressionStatement;
 class BlockStatement;
-typedef std::variant<BooleanLiteral, Identifier, IntegerLiteral, PrefixExpression, InfixExpression, IfExpression, FunctionLiteral, CallExpression> Expression;
+typedef std::variant<StringLiteral,
+                     CharLiteral,
+                     BooleanLiteral,
+                     FloatLiteral,
+                     Identifier,
+                     IntegerLiteral,
+                     PrefixExpression,
+                     InfixExpression,
+                     IfExpression,
+                     FunctionLiteral,
+                     CallExpression> Expression;
 // See block statement for why we need this
 enum class StatementType {
   LS,
@@ -114,6 +127,28 @@ class IfExpression {
   bool operator==(const IfExpression &other) const;
 };
 
+class StringLiteral {
+  public:
+  StringLiteral(){};
+  StringLiteral(Token t, std::string value) : t(t), value(value){};
+  Token t;
+  std::string value;
+  std::string token_literal() { return "\"" + value + "\""; }
+  std::string string() { return token_literal(); };
+  bool operator==(const StringLiteral &other) const { return other.value == value; }
+};
+
+class CharLiteral {
+  public:
+  CharLiteral(){};
+  CharLiteral(Token t, char value) : t(t), value(value){};
+  Token t;
+  char value;
+  std::string token_literal() { return "\'" + std::string(1, value) + "\'"; }
+  std::string string() { return token_literal(); };
+  bool operator==(const CharLiteral &other) const { return other.value == value; }
+};
+
 class BooleanLiteral {
   public:
   BooleanLiteral(){};
@@ -144,6 +179,19 @@ class IntegerLiteral {
   std::string token_literal() { return std::to_string(val); }
   std::string string() { return token_literal(); };
   bool operator==(const IntegerLiteral &other) const {
+    return other.val == val;
+  }
+};
+
+class FloatLiteral {
+  public:
+  FloatLiteral(Token t, double val) : t(t), val(val){};
+  FloatLiteral(double val) : val(val){};
+  Token t;
+  double val;
+  std::string token_literal() { return std::to_string(val); }
+  std::string string() { return token_literal(); };
+  bool operator==(const FloatLiteral &other) const {
     return other.val == val;
   }
 };
@@ -266,7 +314,10 @@ std::ostream &operator<<(std::ostream &os, const Identifier &obj);
 std::ostream &operator<<(std::ostream &os, const BooleanLiteral &obj);
 std::ostream &operator<<(std::ostream &os, const FunctionLiteral &obj);
 std::ostream &operator<<(std::ostream &os, const IntegerLiteral &obj);
+std::ostream &operator<<(std::ostream &os, const FloatLiteral &obj);
 std::ostream &operator<<(std::ostream &os, const CallExpression &obj);
+std::ostream &operator<<(std::ostream &os, const StringLiteral &obj);
+std::ostream &operator<<(std::ostream &os, const CharLiteral &obj);
 std::ostream &operator<<(std::ostream &os, const Program &obj);
 
 #endif// MONKE_CPP_AST_H

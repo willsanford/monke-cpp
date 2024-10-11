@@ -32,7 +32,9 @@ TEST(Token, BasicTokenTest) {
 }
 
 TEST(Token, AdvancedTokenTest) {
-    std::string input = R"(let five = 5;
+    std::string input = R"(
+    let a = "Some string";
+    let five = 5;
     let ten = 10;
     let add = fn(x, y){
         x + y;
@@ -49,6 +51,11 @@ TEST(Token, AdvancedTokenTest) {
     10 != 9;)";
 
     std::vector<Token> expected_tokens = {
+            Token(token_t::LET, "let"),
+            Token(token_t::IDENT, "a"),
+            Token(token_t::ASSIGN, "="),
+            Token(token_t::STRING, "Some string"),
+            Token(token_t::SEMICOLON, ";"),
             Token(token_t::LET, "let"),
             Token(token_t::IDENT, "five"),
             Token(token_t::ASSIGN, "="),
@@ -126,11 +133,9 @@ TEST(Token, AdvancedTokenTest) {
 
     Lexer l = Lexer(input);
 
-    bool eq = true;
     for (auto t : expected_tokens){
         Token tok = l.next_token();
-        eq &= (tok.literal == t.literal);
-        eq &= (tok.ttype == t.ttype);
+        ASSERT_EQ(tok.literal, t.literal);
+        ASSERT_EQ(tok.ttype, t.ttype);
     }
-    ASSERT_TRUE(eq);
 }

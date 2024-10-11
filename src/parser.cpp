@@ -49,10 +49,10 @@ bool Parser::expect_peek(token_t t) {
   if (peek_token_is(t)) {
     next_token();
     return true;
-  } else {
-    peek_error(t);
-    return false;
   }
+
+  peek_error(t);
+  return false;
 }
 
 std::optional<Statement> Parser::parse_statement() {
@@ -78,6 +78,14 @@ std::optional<Statement> Parser::parse_expression_statement() {
   }
   stmt.e = expr_opt.value();
   return stmt;
+}
+
+std::optional<Expression> Parser::parse_string() {
+  return StringLiteral(cur_token, cur_token.literal);
+}
+
+std::optional<Expression> Parser::parse_char() {
+  return CharLiteral(cur_token, cur_token.literal[0]);
 }
 
 std::optional<Expression> Parser::parse_expression(precedence p) {
@@ -117,6 +125,17 @@ std::optional<Expression> Parser::parse_int_literal() {
   }
   int64_t val = std::stoull(int_str);
   return IntegerLiteral({cur_token, val});
+}
+
+std::optional<Expression> Parser::parse_float() {
+  auto str = cur_token.literal;
+  if (str.size() == 0 || !std::all_of(str.begin(), str.end(), [](auto c) -> bool { return std::isdigit(c) || c == '.' || c == '-'; })) {
+    errors.push_back(std::format("Cannot parse the float {}", str));
+    return std::nullopt;
+  }
+
+  double val = std::stod(str);
+  return FloatLiteral({cur_token, val});
 }
 
 std::optional<Expression> Parser::parse_prefix_expression() {
@@ -237,8 +256,10 @@ std::optional<Expression> Parser::parse_if_expression() {
 
 std::optional<std::vector<Identifier*>> Parser::parse_function_parameters() {
   std::vector<Identifier*> idents;
-  if (peek_token_is(RPAREN)) return idents;
-
+  if (peek_token_is(RPAREN)) {
+    next_token();
+    return std::optional(idents);
+  }
   next_token();
 
   idents.emplace_back(new Identifier(cur_token));
@@ -247,9 +268,11 @@ std::optional<std::vector<Identifier*>> Parser::parse_function_parameters() {
     next_token();
     next_token();
     idents.emplace_back(new Identifier(cur_token));
-
   }
-  if (!expect_peek(RPAREN)) return std::nullopt;
+
+  if (!expect_peek(RPAREN)) {
+    return std::nullopt;
+  }
 
   return idents;
 };
@@ -284,6 +307,12 @@ std::optional<Expression> Parser::prefix_parse_fns(token_t t) {
       return parse_grouped_expression();
     case ::IF:
       return parse_if_expression();
+    case ::STRING:
+      return parse_string();
+    case ::CHAR:
+      return parse_char();
+    case ::FLOAT:
+      return parse_float();
     case ::FUNCTION:
       return parse_function_expression();
     default:

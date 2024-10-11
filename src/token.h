@@ -15,6 +15,9 @@ enum token_t {
     // Identifiers and Literals
     IDENT,
     INT,
+    STRING,
+    CHAR,
+    FLOAT,
 
     // Operators
     EQ,
@@ -80,7 +83,6 @@ public:
     token_t lookup_ident(std::string literal_);
 
     bool operator==(const Token& t);
-private:
 };
 
 #endif //MONKE_CPP_TOKEN_H

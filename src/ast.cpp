@@ -258,6 +258,21 @@ std::ostream &operator<<(std::ostream &os, const IntegerLiteral &obj) {
   return os;
 }
 
+std::ostream &operator<<(std::ostream &os, const StringLiteral &obj) {
+  os << "StringLiteral(val=" << obj.value << ")";
+  return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const CharLiteral &obj) {
+  os << "CharLiteral(val=" << obj.value << ")";
+  return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const FloatLiteral &obj) {
+  os << "(FloatLiteral(val=" << std::to_string(obj.val) << ")";
+  return os;
+}
+
 std::ostream &operator<<(std::ostream &os, const FunctionLiteral &obj) {
   os << "FunctionLiteral(params=";
   if (obj.parameters.size() > 0) {
