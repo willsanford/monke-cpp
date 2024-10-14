@@ -17,9 +17,13 @@ public:
     Lexer *l;
 
     Token cur_token;
+    size_t cur_token_index = 0;
     Token peek_token;
+    size_t peek_token_index = 1;
 
+    std::vector<Token> tokens = {};
     std::vector<std::string> errors;
+    std::optional<LexerError> error = std::nullopt;
 
     void next_token();
     bool cur_token_is(token_t t);

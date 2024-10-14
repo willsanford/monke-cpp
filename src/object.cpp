@@ -52,7 +52,7 @@ std::string inspect(Object obj) {
 }
 
 std::string get_msg(Error obj) {
-  return std::visit([](auto &&arg) {return arg.message; }, obj);
+  return std::visit([](auto &&arg) { return arg.get_msg(); }, obj);
 }
 
 std::string get_type_name(Object &obj){

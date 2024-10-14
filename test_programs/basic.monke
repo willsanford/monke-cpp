@@ -1,17 +1,1 @@
-let z = fn(x){
-     let a = 4;
-     let b = 5;
-     return a + b + x;
- };
-
-let a = fn(){
-    let x = 5;
-    return x;
-};
-
- let newAdder = fn(x) {
-     fn(y) { x + y + z(x) };
- };
-
- let addTwo = newAdder(2);
- addTwo(2);
+let a1 = 4;

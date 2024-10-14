@@ -13,6 +13,7 @@
 #include <memory>
 
 #include "ast.h"
+#include "lexer.h"
 
 class Environment;
 
@@ -27,7 +28,7 @@ class Function;
 typedef std::variant<Float, Integer, String, Char, Boolean, Null, ReturnObject, Function> Object;
 
 class TypeError;
-typedef std::variant<TypeError> Error;
+typedef std::variant<TypeError, LexerError> Error;
 typedef std::expected<Object, Error> ObjectResult;
 
 std::string get_type_name(Object &obj_res);
@@ -35,6 +36,7 @@ std::string get_type_name(Object &obj_res);
 class TypeError {
   public:
   std::string message;
+  std::string get_msg() { return message; };
   TypeError(std::string message) : message(message) {}
   bool operator==(const TypeError &) const { return true; };
 };

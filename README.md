@@ -22,6 +22,7 @@
 - macros
 - enums
 - unions
+- Stack Traces on errors
 
 ### Advanced
 - syntax highlighting

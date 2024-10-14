@@ -18,6 +18,7 @@
 #include <variant>
 #include <vector>
 
+#include "lexer.h"
 #include "utils.h"
 
 // Operator Precedence
@@ -270,10 +271,12 @@ class Program {
   Program() {
     statements = {};
   };
+
   Program(std::vector<Statement> statements) : statements(statements){};
   std::string token_literal();
   std::string string();
   std::vector<Statement> statements;
+  std::optional<LexerError> error = std::nullopt;
   bool operator==(const Program &other) const;
 };
 

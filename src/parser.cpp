@@ -12,8 +12,18 @@
 #include <variant>
 
 Parser::Parser(Lexer *l) : l(l) {
-  next_token();
-  next_token();
+  auto t = l->next_token();
+  while (t.has_value()) {
+    tokens.push_back(t.value());
+    if (t.value().ttype == EOF_) break;
+    t = l->next_token();
+  }
+  if (!t.has_value()) {
+    error = t.error();
+    return;
+  }
+  cur_token = tokens[cur_token_index];
+  peek_token = tokens[peek_token_index];
 }
 
 precedence Parser::peek_precedence() {
@@ -29,12 +39,15 @@ std::vector<std::string> Parser::get_errors() {
 
 void Parser::peek_error(token_t t) {
   std::string msg = "Expected next token to be " + get_token_name(t) + " but got " + get_token_name(peek_token.ttype) + " instead";
-
   errors.push_back(msg);
 }
 void Parser::next_token() {
-  cur_token = peek_token;
-  peek_token = l->next_token();
+  cur_token_index++;
+  cur_token_index = cur_token_index % tokens.size();
+  peek_token_index++;
+  peek_token_index = peek_token_index % tokens.size();
+  cur_token = tokens[cur_token_index];
+  peek_token = tokens[peek_token_index];
 }
 
 bool Parser::cur_token_is(token_t t) {
@@ -188,16 +201,16 @@ std::optional<BlockStatement> Parser::parse_block_statement() {
     auto stmt = parse_statement();
     if (stmt.has_value()) {
       if (std::holds_alternative<LetStatement>(stmt.value())) {
-        stmts.push_back({StatementType::LS,new Statement(stmt.value())});
+        stmts.push_back({StatementType::LS, new Statement(stmt.value())});
       }
       if (std::holds_alternative<ReturnStatement>(stmt.value())) {
-        stmts.push_back({StatementType::RS,new Statement(stmt.value())});
+        stmts.push_back({StatementType::RS, new Statement(stmt.value())});
       }
       if (std::holds_alternative<BlockStatement>(stmt.value())) {
-        stmts.push_back({StatementType::BS,new Statement(stmt.value())});
+        stmts.push_back({StatementType::BS, new Statement(stmt.value())});
       }
       if (std::holds_alternative<ExpressionStatement>(stmt.value())) {
-        stmts.push_back({StatementType::ES,new Statement(stmt.value())});
+        stmts.push_back({StatementType::ES, new Statement(stmt.value())});
       }
     }
     next_token();
@@ -372,7 +385,6 @@ std::optional<std::function<std::optional<Expression>(Expression)>> Parser::infi
         return parse_call_expression(e);
       };
     default:
-      std::cout << get_token_name(t) << std::endl;
       return std::nullopt;
   }
 }
@@ -414,8 +426,12 @@ std::optional<Statement> Parser::parse_let_statement() {
 
 Program Parser::parse_program() {
   Program *p = new Program();
+  if (error.has_value()) {
+    p->error = error;
+    return *p;
+  }
 
-  while (cur_token.ttype != ::EOF_) {
+  while (cur_token.ttype != EOF_) {
     std::optional<Statement> stmt_opt = parse_statement();
     if (stmt_opt.has_value()) {
       p->statements.emplace_back(stmt_opt.value());

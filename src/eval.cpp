@@ -18,6 +18,9 @@ ObjectResult eval_program(std::string input) {
   auto *l = new Lexer(input);
   Parser p = Parser(l);
   Program program = p.parse_program();
+  if (program.error.has_value()) {
+    return std::unexpected(program.error.value());
+  }
   return evaluate(program);
 }
 

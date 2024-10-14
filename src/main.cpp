@@ -5,12 +5,20 @@
 
 #include "object.h"
 #include "eval.h"
+
+#include <spdlog/spdlog.h>
+
 int main(int argc, char **argv) {
+    SPDLOG_INFO("Starting main");
     // Check if we want the REPL or to parse a program
     if (argc == 2) {
         std::string input = read_file(argv[1]);
         auto out = eval_program(input);
-        std::cout << inspect(out.value()) << std::endl;
+        if (!out.has_value()) {
+            std::cout << get_msg(out.error()) << std::endl;
+        }else {
+            std::cout << inspect(out.value()) << std::endl;
+        }
         return 0;
     }
 
@@ -27,6 +35,10 @@ int main(int argc, char **argv) {
         auto *l = new Lexer(input);
         Parser p = Parser(l);
         Program program = p.parse_program();
+        if (program.error.has_value()) {
+            std::cout << "Error: " << program.error.value().message << std::endl;
+            continue;
+        }
         for (auto &s: program.statements) {
             result = eval(s, env);
             if (!result.has_value()) {
