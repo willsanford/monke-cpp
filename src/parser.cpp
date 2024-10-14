@@ -140,6 +140,28 @@ std::optional<Expression> Parser::parse_int_literal() {
   return IntegerLiteral({cur_token, val});
 }
 
+std::optional<Expression> Parser::parse_array_literal() {
+  std::vector<std::shared_ptr<Expression>> values;
+
+  // Move past bracket
+  next_token();
+
+  if (peek_token_is(RBRACKET)) {
+    next_token();
+    return ArrayLiteral(cur_token, values);
+  }
+
+  while (peek_token_is(RBRACKET) == false) {
+    auto value = parse_expression(precedence::lowest);
+    if (!value.has_value()) return std::nullopt;
+    auto ptr = // TODO : Figure out how to do this correctly
+    values.push_back(value.value());
+    if (peek_token_is(RBRACKET)) break;
+    next_token();
+    if (!expect_peek(COMMA)) return std::nullopt;
+  }
+}
+
 std::optional<Expression> Parser::parse_float() {
   auto str = cur_token.literal;
   if (str.size() == 0 || !std::all_of(str.begin(), str.end(), [](auto c) -> bool { return std::isdigit(c) || c == '.' || c == '-'; })) {
@@ -177,9 +199,8 @@ std::optional<Expression> Parser::parse_infix_expression(Expression left) {
   if (expr_opt.has_value()) {
     infix.right = new Expression(expr_opt.value());
     return infix;
-  } else {
-    return std::nullopt;
   }
+  return std::nullopt;
 }
 
 std::optional<Expression> Parser::parse_grouped_expression() {
@@ -328,6 +349,8 @@ std::optional<Expression> Parser::prefix_parse_fns(token_t t) {
       return parse_float();
     case ::FUNCTION:
       return parse_function_expression();
+    case ::RBRACKET:
+      return parse_array_literal();
     default:
       errors.push_back(std::format("No prefix parse function for {} found", get_token_name(t)));
       return std::nullopt;

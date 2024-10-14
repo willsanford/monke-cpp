@@ -3,25 +3,25 @@
 //
 #include "token.h"
 
-Token::Token() : ttype(token_t::ILLEGAL) , literal("\0"){};
-Token::Token(token_t t, std::string l) : ttype(t), literal(l) {};
-Token::Token(token_t t, char l) : ttype(t), literal(std::string(1, l)) {};
-Token::Token(std::string l) : ttype(lookup_ident(l)), literal(l) {};
+Token::Token() : ttype(token_t::ILLEGAL), literal("\0"){};
+Token::Token(token_t t, std::string l) : ttype(t), literal(l){};
+Token::Token(token_t t, char l) : ttype(t), literal(std::string(1, l)){};
+Token::Token(std::string l) : ttype(lookup_ident(l)), literal(l){};
 token_t Token::lookup_ident(std::string literal_) {
-    if (literal_ == "let") return LET;
-    if (literal_ == "if") return IF;
-    if (literal_ == "true") return TRUE;
-    if (literal_ == "else") return ELSE;
-    if (literal_ == "false") return FALSE;
-    if (literal_ == "fn") return FUNCTION;
-    if (literal_ == "return") return RETURN;
-    return IDENT;
+  if (literal_ == "let") return LET;
+  if (literal_ == "if") return IF;
+  if (literal_ == "true") return TRUE;
+  if (literal_ == "else") return ELSE;
+  if (literal_ == "false") return FALSE;
+  if (literal_ == "fn") return FUNCTION;
+  if (literal_ == "return") return RETURN;
+  return IDENT;
 }
-bool Token::operator==(const Token& t){
-    return (ttype == t.ttype) && (literal == t.literal);
+bool Token::operator==(const Token &t) {
+  return (ttype == t.ttype) && (literal == t.literal);
 }
 
-std::string get_token_name(token_t t){
+std::string get_token_name(token_t t) {
   switch (t) {
     case ILLEGAL:
       return "illegal";
@@ -63,6 +63,10 @@ std::string get_token_name(token_t t){
       return "LBRACE";
     case RBRACE:
       return "RBRACE";
+    case RBRACKET:
+      return "RBRACKET";
+    case LBRACKET:
+      return "LBRACKET";
     case FUNCTION:
       return "FUNCTION";
     case LET:

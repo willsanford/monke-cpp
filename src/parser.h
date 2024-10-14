@@ -48,6 +48,7 @@ public:
     std::optional<Expression> parse_string();
     std::optional<Expression> parse_char();
     std::optional<Expression> parse_float();
+    std::optional<Expression> parse_array_literal();
     std::optional<Expression> parse_int_literal();
     std::optional<Expression> parse_prefix_expression();
     std::optional<Expression> parse_grouped_expression();

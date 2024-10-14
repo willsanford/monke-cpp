@@ -9,80 +9,82 @@
 #include <unordered_map>
 
 enum token_t {
-    ILLEGAL,
-    EOF_, // To not conflict with the EOF define
+  ILLEGAL,
+  EOF_,// To not conflict with the EOF define
 
-    // Identifiers and Literals
-    IDENT,
-    INT,
-    STRING,
-    CHAR,
-    FLOAT,
+  // Identifiers and Literals
+  IDENT,
+  INT,
+  STRING,
+  CHAR,
+  FLOAT,
 
-    // Operators
-    EQ,
-    NotEq,
-    PLUS,
-    ASSIGN,
-    MINUS,
-    BANG,
-    ASTERISK,
-    SLASH,
-    LT,
-    GT,
+  // Operators
+  EQ,
+  NotEq,
+  PLUS,
+  ASSIGN,
+  MINUS,
+  BANG,
+  ASTERISK,
+  SLASH,
+  LT,
+  GT,
 
-    // Delimiters
-    COMMA,
-    SEMICOLON,
+  // Delimiters
+  COMMA,
+  SEMICOLON,
 
-    LPAREN,
-    RPAREN,
-    LBRACE,
-    RBRACE, // Keywords
-    FUNCTION,
-    LET,
-    TRUE,
-    FALSE,
-    IF,
-    ELSE,
-    RETURN,
+  LBRACKET,
+  RBRACKET,
+  LPAREN,
+  RPAREN,
+  LBRACE,
+  RBRACE,// Keywords
+  FUNCTION,
+  LET,
+  TRUE,
+  FALSE,
+  IF,
+  ELSE,
+  RETURN,
 };
 
 std::string get_token_name(token_t t);
 
 class Token {
-public:
-    token_t ttype;
-    std::string literal;
+  public:
+  token_t ttype;
+  std::string literal;
 
-    /**
+  /**
      * Default token constructor
      */
-    Token();
+  Token();
 
-    /**
+  /**
      * Constructor from a token type and literal
      * @param t
      * @param l
      */
-    Token(token_t t, std::string l);
+  Token(token_t t, std::string l);
 
-    Token(token_t t, char l);
+  Token(token_t t, char l);
 
-    /**
+  /**
      * Constructor with ident lookup initialization
      * @param l
      */
-    Token(std::string l);
+  Token(std::string l);
 
-    /**
+  /**
      * If the literal exists in the token map, then return the corresponding token, otherwise return IDENT
      * @param literal
      * @return
      */
-    token_t lookup_ident(std::string literal_);
+  token_t lookup_ident(std::string literal_);
 
-    bool operator==(const Token& t);
+  bool operator==(const Token &t);
 };
 
-#endif //MONKE_CPP_TOKEN_H
+#endif//MONKE_CPP_TOKEN_H

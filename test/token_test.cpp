@@ -36,6 +36,7 @@ TEST(Token, BasicTokenTest) {
 
 TEST(Token, AdvancedTokenTest) {
     std::string input = R"(
+    [5, 10];
     let a = "Some string";
     let five = 5;
     let ten = 10;
@@ -54,6 +55,12 @@ TEST(Token, AdvancedTokenTest) {
     10 != 9;)";
 
     std::vector expected_tokens = {
+            Token(LBRACKET, "["),
+            Token(INT, "5"),
+            Token(COMMA, ","),
+            Token(INT, "10"),
+            Token(RBRACKET, "]"),
+            Token(SEMICOLON, ";"),
             Token(LET, "let"),
             Token(IDENT, "a"),
             Token(ASSIGN, "="),

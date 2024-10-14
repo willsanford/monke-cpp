@@ -80,23 +80,23 @@ ObjectResult eval(ExpressionStatement &node, std::shared_ptr<Environment> env) {
   return eval(node.e, std::move(env));
 }
 
-ObjectResult eval(IntegerLiteral &node, std::shared_ptr<Environment> env) {
+ObjectResult eval(IntegerLiteral &node, std::shared_ptr<Environment>) {
   return Integer(node.val);
 }
 
-ObjectResult eval(FloatLiteral &node, std::shared_ptr<Environment> env) {
+ObjectResult eval(FloatLiteral &node, std::shared_ptr<Environment>) {
   return Float(node.val);
 }
 
-ObjectResult eval(StringLiteral &node, std::shared_ptr<Environment> env) {
+ObjectResult eval(StringLiteral &node, std::shared_ptr<Environment>) {
   return String(node.value);
 }
 
-ObjectResult eval(CharLiteral &node, std::shared_ptr<Environment> env) {
+ObjectResult eval(CharLiteral &node, std::shared_ptr<Environment>) {
   return Char(node.value);
 }
 
-ObjectResult eval(BooleanLiteral &node, std::shared_ptr<Environment> env) {
+ObjectResult eval(BooleanLiteral &node, std::shared_ptr<Environment>) {
   return Boolean(node.value);
 }
 
@@ -249,8 +249,8 @@ ObjectResult eval_infix_expression(std::string &op, Object &left, Object &right,
   }
 
 
-  #define OP(operator, t) \
-    if (strcmp(op.c_str(), #operator) == 0) { return t(left_val.value operator right_val.value); }
+#define OP(operator, t) \
+  if (strcmp(op.c_str(), #operator) == 0) { return t(left_val.value operator right_val.value); }
   /*
    * Infix operators for integers
    */
@@ -350,7 +350,7 @@ Boolean cast(Integer from) {
 }
 
 template<>
-Boolean cast(Null from) {
+Boolean cast(Null) {
   return {false};
 }
 
@@ -365,6 +365,6 @@ ReturnObject cast(Boolean from) {
 }
 
 template<>
-Boolean cast(ReturnObject from) {
+Boolean cast(ReturnObject) {
   return {false};
 }

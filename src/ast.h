@@ -43,6 +43,7 @@ class IntegerLiteral;
 class FloatLiteral;
 class StringLiteral;
 class CharLiteral;
+class ArrayLiteral;
 class PrefixExpression;
 class InfixExpression;
 class BooleanLiteral;
@@ -56,6 +57,7 @@ class BlockStatement;
 typedef std::variant<StringLiteral,
                      CharLiteral,
                      BooleanLiteral,
+                     ArrayLiteral,
                      FloatLiteral,
                      Identifier,
                      IntegerLiteral,
@@ -137,6 +139,17 @@ class StringLiteral {
   std::string token_literal() { return "\"" + value + "\""; }
   std::string string() { return token_literal(); };
   bool operator==(const StringLiteral &other) const { return other.value == value; }
+};
+
+class ArrayLiteral{
+  public:
+  ArrayLiteral(){};
+  ArrayLiteral(Token t, std::vector<std::shared_ptr<Expression>> values) : t(t), values(values){};
+  Token t;
+  std::vector<std::shared_ptr<Expression>> values;
+  std::string token_literal() { return "\"ArrayLiteral\""; }
+  std::string string() { return token_literal(); };
+  bool operator==(const ArrayLiteral &other) const { return true; }
 };
 
 class CharLiteral {
@@ -318,6 +331,7 @@ std::ostream &operator<<(std::ostream &os, const BooleanLiteral &obj);
 std::ostream &operator<<(std::ostream &os, const FunctionLiteral &obj);
 std::ostream &operator<<(std::ostream &os, const IntegerLiteral &obj);
 std::ostream &operator<<(std::ostream &os, const FloatLiteral &obj);
+std::ostream &operator<<(std::ostream &os, const ArrayLiteral &obj);
 std::ostream &operator<<(std::ostream &os, const CallExpression &obj);
 std::ostream &operator<<(std::ostream &os, const StringLiteral &obj);
 std::ostream &operator<<(std::ostream &os, const CharLiteral &obj);
