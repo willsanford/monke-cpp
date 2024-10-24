@@ -76,6 +76,10 @@ ObjectResult eval(Expression &node, std::shared_ptr<Environment> env) {
   return std::visit([&](auto &&arg) { return eval(arg, env); }, node);
 }
 
+//ObjectResult eval(ArrayLiteral &node, std::shared_ptr<Environment> env) {
+//  return std::unexpected();
+//}
+
 ObjectResult eval(ExpressionStatement &node, std::shared_ptr<Environment> env) {
   return eval(node.e, std::move(env));
 }

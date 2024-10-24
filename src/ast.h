@@ -54,18 +54,44 @@ class LetStatement;
 class ReturnStatement;
 class ExpressionStatement;
 class BlockStatement;
-typedef std::variant<StringLiteral,
-                     CharLiteral,
-                     BooleanLiteral,
-                     ArrayLiteral,
-                     FloatLiteral,
-                     Identifier,
-                     IntegerLiteral,
-                     PrefixExpression,
-                     InfixExpression,
-                     IfExpression,
-                     FunctionLiteral,
-                     CallExpression> Expression;
+
+typedef  std::variant<StringLiteral,
+             CharLiteral,
+             BooleanLiteral,
+             ArrayLiteral,
+             FloatLiteral,
+             Identifier,
+             IntegerLiteral,
+             PrefixExpression,
+             InfixExpression,
+             IfExpression,
+             FunctionLiteral,
+             CallExpression>  Expression;
+
+enum class ExpressionType {
+  SL,
+  CL,
+  BL,
+  AL,
+  FL,
+  ID,
+  Int,
+  Pre,
+  Inf,
+  If,
+  FuncL,
+  CE
+};
+
+typedef std::pair<ExpressionType, void *> IndirectExpression;
+
+class ArrayLiteral {
+  public:
+      ArrayLiteral(){}
+      std::vector<IndirectExpression> values;
+      std::vector<Expression> get_values();
+}
+
 // See block statement for why we need this
 enum class StatementType {
   LS,
@@ -92,13 +118,25 @@ class BlockStatement {
   bool operator==(const BlockStatement &other) const;
 };
 
+//class ArrayLiteral {
+//  public:
+//  ArrayLiteral(){};
+//  ArrayLiteral(Token t, std::vector<std::pair<ExpressionType, void *>> values) : t(t), values(values){};
+//  Token t;
+//  std::vector<std::pair<ExpressionType, void *>> values;
+//  const std::vector<Expression> get_values();
+//  std::string token_literal() { return "\"ArrayLiteral\""; }
+//  std::string string() { return token_literal(); };
+//  bool operator==(const ArrayLiteral &) const { return true; }
+//};
+
 class CallExpression {
   public:
   Token t;
   Expression *function;
-  std::vector<Expression *> arguments;
-  CallExpression(Token t, Expression *function, std::vector<Expression *> arguments) : t(t), function(function), arguments(arguments){};
-  CallExpression(Expression *function, std::vector<Expression *> arguments) : function(function), arguments(arguments){};
+  std::vector<Expression*> arguments;
+  CallExpression(Token t, Expression* function, std::vector<Expression*> arguments) : t(std::move(t)), function(function), arguments(std::move(arguments)){};
+  CallExpression(Expression* function, std::vector<Expression*> arguments) : function(function), arguments(std::move(arguments)){};
   std::string token_literal() { return t.literal; };
   std::string string();
   bool operator==(const CallExpression &other) const;
@@ -141,16 +179,6 @@ class StringLiteral {
   bool operator==(const StringLiteral &other) const { return other.value == value; }
 };
 
-class ArrayLiteral{
-  public:
-  ArrayLiteral(){};
-  ArrayLiteral(Token t, std::vector<std::shared_ptr<Expression>> values) : t(t), values(values){};
-  Token t;
-  std::vector<std::shared_ptr<Expression>> values;
-  std::string token_literal() { return "\"ArrayLiteral\""; }
-  std::string string() { return token_literal(); };
-  bool operator==(const ArrayLiteral &other) const { return true; }
-};
 
 class CharLiteral {
   public:
@@ -228,7 +256,7 @@ class PrefixExpression {
 class InfixExpression {
   public:
   InfixExpression(){};
-  InfixExpression(Token t, Expression *left, std::string op, Expression *right) {
+  InfixExpression(Token, Expression *left, std::string op, Expression *right) {
     this->left = left;
     this->op = op;
     this->right = right;
@@ -331,7 +359,7 @@ std::ostream &operator<<(std::ostream &os, const BooleanLiteral &obj);
 std::ostream &operator<<(std::ostream &os, const FunctionLiteral &obj);
 std::ostream &operator<<(std::ostream &os, const IntegerLiteral &obj);
 std::ostream &operator<<(std::ostream &os, const FloatLiteral &obj);
-std::ostream &operator<<(std::ostream &os, const ArrayLiteral &obj);
+//std::ostream &operator<<(std::ostream &os, const ArrayLiteral &obj);
 std::ostream &operator<<(std::ostream &os, const CallExpression &obj);
 std::ostream &operator<<(std::ostream &os, const StringLiteral &obj);
 std::ostream &operator<<(std::ostream &os, const CharLiteral &obj);

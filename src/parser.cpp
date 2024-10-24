@@ -9,6 +9,7 @@
 #include "token.h"
 #include <format>
 #include <functional>
+#include <optional>
 #include <variant>
 
 Parser::Parser(Lexer *l) : l(l) {
@@ -102,7 +103,7 @@ std::optional<Expression> Parser::parse_char() {
 }
 
 std::optional<Expression> Parser::parse_expression(precedence p) {
-  auto left_exp_opt= prefix_parse_fns(cur_token.ttype);
+  auto left_exp_opt = prefix_parse_fns(cur_token.ttype);
   if (!left_exp_opt.has_value()) {
     return std::nullopt;
   }
@@ -141,6 +142,7 @@ std::optional<Expression> Parser::parse_int_literal() {
 }
 
 std::optional<Expression> Parser::parse_array_literal() {
+  /*
   std::vector<std::shared_ptr<Expression>> values;
 
   // Move past bracket
@@ -160,6 +162,8 @@ std::optional<Expression> Parser::parse_array_literal() {
     next_token();
     if (!expect_peek(COMMA)) return std::nullopt;
   }
+  */
+  return std::nullopt;
 }
 
 std::optional<Expression> Parser::parse_float() {
@@ -214,7 +218,7 @@ std::optional<Expression> Parser::parse_grouped_expression() {
 }
 
 std::optional<BlockStatement> Parser::parse_block_statement() {
-  std::vector<std::pair<StatementType, void*>> stmts;
+  std::vector<std::pair<StatementType, void *>> stmts;
   Token bt = cur_token;
   next_token();
 
@@ -281,15 +285,15 @@ std::optional<Expression> Parser::parse_if_expression() {
       return std::nullopt;
     }
     exp.alternative = new BlockStatement(alt.value());
-  }else {
+  } else {
     exp.alternative = std::nullopt;
   }
 
   return exp;
 }
 
-std::optional<std::vector<Identifier*>> Parser::parse_function_parameters() {
-  std::vector<Identifier*> idents;
+std::optional<std::vector<Identifier *>> Parser::parse_function_parameters() {
+  std::vector<Identifier *> idents;
   if (peek_token_is(RPAREN)) {
     next_token();
     return std::optional(idents);
@@ -330,7 +334,8 @@ std::optional<Expression> Parser::prefix_parse_fns(token_t t) {
   switch (t) {
     case ::IDENT:
       return parse_identifier();
-    case ::TRUE: case ::FALSE:
+    case ::TRUE:
+    case ::FALSE:
       return parse_boolean();
     case ::INT:
       return parse_int_literal();
@@ -362,7 +367,6 @@ std::optional<Expression> Parser::parse_call_expression(Expression left) {
   auto args = parse_call_arguments();
   if (!args.has_value()) return std::nullopt;
   return CallExpression(t, new Expression(left), args.value());
-
 }
 
 std::optional<std::vector<Expression *>> Parser::parse_call_arguments() {

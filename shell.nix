@@ -1,4 +1,4 @@
-{ pkgs ? import <nixpkgs> {} }:
+{ pkgs ? import <nixpkgs> { config.allowUnfree = true; } }:
 
 pkgs.mkShell rec {
   SHELL_NAME = "cpp";
@@ -12,7 +12,9 @@ pkgs.mkShell rec {
     gdb
     valgrind
     clang-tools
+    spdlog
   ];
+
 
   shellHook = ''
     export PS1="\n\[\033[1;32m\][nix-shell:$name]\$\[\033[0m\] "

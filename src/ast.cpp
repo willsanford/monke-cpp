@@ -268,14 +268,14 @@ std::ostream &operator<<(std::ostream &os, const CharLiteral &obj) {
   return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const ArrayLiteral &obj) {
-  os << "ArrayLiteral(vals=[";
-  for (const auto &e: obj.values) {
-    os << *e << ",";
-  }
-  os << "])";
-  return os;
-}
+//std::ostream &operator<<(std::ostream &os, const ArrayLiteral &obj) {
+//  os << "ArrayLiteral(vals=[";
+//  for (const auto &e: obj.values) {
+//    os << *e << ",";
+//  }
+//  os << "])";
+//  return os;
+//}
 
 std::ostream &operator<<(std::ostream &os, const FloatLiteral &obj) {
   os << "(FloatLiteral(val=" << std::to_string(obj.val) << ")";
